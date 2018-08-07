@@ -1,0 +1,22 @@
+Host *
+    ServerAliveInterval 10
+    ServerAliveCountMax 3
+    Compression yes
+    CompressionLevel 2
+    TCPKeepAlive yes
+    # use Multiplexing
+    ControlMaster auto
+    ControlPath ~/.ssh/ssh_cm_socket_%r@%h:%p
+    IdentitiesOnly yes
+    BatchMode yes
+    ConnectTimeout 10
+    ExitOnForwardFailure yes
+    RequestTTY no
+
+Host {{autossh_login_servername}}
+    HostName {{autossh_login_host}}
+    User {{autossh_login_user}}
+    IdentityFile ~/.ssh/id_{{autossh_keyname}}
+{% for item in autossh_localforwards.values() %}
+    LocalForward {{ item.localport }} {{ item.remotehost }}:{{ item.remoteport }}
+{% endfor %}

@@ -1,0 +1,6 @@
+- name: restart autossh
+  become: true
+  systemd:
+    name: "{{autossh_unit_name}}.service"
+    daemon_reload: yes
+    state: restarted

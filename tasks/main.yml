@@ -1,0 +1,55 @@
+- name: create autossh user
+  become: true
+  user:
+    name: "{{autossh_user}}"
+    system: yes
+    append: yes
+    shell: /bin/false
+    generate_ssh_key: yes
+    ssh_key_type: ED25519
+    ssh_key_file: ".ssh/id_{{autossh_keyname}}"
+    ssh_key_comment: "{{autossh_user}}@{{inventory_hostname}}"
+- name: fetch public key
+  fetch:
+    src: "/home/{{autossh_user}}/.ssh/id_{{autossh_keyname}}.pub"
+    dest: keys/id_{{autossh_keyname}}.pub
+    flat: yes
+- name: prepare .ssh directory
+  become: true
+  file:
+    path: "/home/{{autossh_user}}/.ssh"
+    state: directory
+    mode: 0755
+    owner: "{{autossh_user}}"
+- name: install autossh
+  become: true
+  package:
+    name: autossh
+- name: deploy systemd unit for autossh tunnels
+  become: true
+  template:
+    src: "{{autossh_unit_template}}"
+    dest: "/etc/systemd/system/{{autossh_unit_name}}.service"
+  notify: restart autossh
+- name: deploy ssh config to autossh user
+  become: true
+  when: autossh_sshconfig_template_deploy == true
+  template:
+    src:  "{{autossh_sshconfig_template}}"
+    dest: "/home/{{autossh_user}}/.ssh/config"
+    owner: "{{autossh_user}}"
+  notify: restart autossh
+- name: add known host
+  known_hosts:
+    name: "{{autossh_login_host}}"
+    hash_host: yes
+    key: "{{autossh_login_hostkey}}"
+    path: "/home/{{autossh_user}}/.ssh/known_hosts"
+  notify: restart autossh
+
+- name: Enable and start autossh tunnels
+  become: true
+  systemd:
+    name: "{{autossh_unit_name}}.service"
+    enabled: true
+    state: started

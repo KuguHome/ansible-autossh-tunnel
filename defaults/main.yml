@@ -1,0 +1,12 @@
+autossh_user: "autossh"
+autossh_unit_name: "autossh_tunnels"
+autossh_unit_template: "autossh_tunnels.service.j2"
+autossh_unit_decription: "AutoSSH tunnels"
+autossh_sshconfig_template: "sshconfig.j2"
+autossh_sshconfig_template_deploy: yes
+autossh_login_servername: ""
+autossh_login_host: ""
+autossh_login_hostkey: ""
+autossh_login_user: ""
+autossh_keyname: "{{inventory_hostname}}"
+autossh_localforwards: []
