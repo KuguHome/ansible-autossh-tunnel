@@ -1,5 +1,6 @@
 - name: create autossh user
   become: true
+  when: autossh_user_onlykey == false
   user:
     name: "{{autossh_user}}"
     system: yes
@@ -9,10 +10,19 @@
     ssh_key_type: ED25519
     ssh_key_file: ".ssh/id_{{autossh_keyname}}"
     ssh_key_comment: "{{autossh_user}}@{{inventory_hostname}}"
+- name: generate autossh key
+  become: true
+  when: autossh_user_onlykey == true
+  user:
+    name: "{{autossh_user}}"
+    generate_ssh_key: yes
+    ssh_key_type: ED25519
+    ssh_key_file: ".ssh/id_{{autossh_keyname}}"
+    ssh_key_comment: "{{autossh_user}}@{{inventory_hostname}}"
 - name: fetch public key
   fetch:
     src: "/home/{{autossh_user}}/.ssh/id_{{autossh_keyname}}.pub"
-    dest: keys/id_{{autossh_keyname}}.pub
+    dest: "{{autossh_keyfetch_destination}}"
     flat: yes
 - name: prepare .ssh directory
   become: true

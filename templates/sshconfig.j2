@@ -20,3 +20,6 @@ Host {{autossh_login_servername}}
 {% for item in autossh_localforwards.values() %}
     LocalForward {{ item.localport }} {{ item.remotehost }}:{{ item.remoteport }}
 {% endfor %}
+{% for item in autossh_remoteforwards.values() %}
+    RemoteForward {{ item.localport }} {{ item.remotehost }}:{{ item.remoteport }}
+{% endfor %}

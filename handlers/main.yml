@@ -4,3 +4,5 @@
     name: "{{autossh_unit_name}}.service"
     daemon_reload: yes
     state: restarted
+    async: 10
+    poll: 0
