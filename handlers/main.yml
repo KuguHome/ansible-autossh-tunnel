@@ -1,4 +1,5 @@
 - name: restart autossh
+  when: autossh_offline_conf == False
   become: true
   systemd:
     name: "{{autossh_unit_name}}.service"
