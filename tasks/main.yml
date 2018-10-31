@@ -27,7 +27,7 @@
   become: true
   when: autossh_offline_conf == true
   user:
-    name: "{{ansible_user}}"
+    name: "{{ansible_user_id}}"
     generate_ssh_key: yes
     ssh_key_type: ED25519
     ssh_key_file: "{{autossh_path_prefix}}/home/{{autossh_user}}/.ssh/id_{{autossh_keyname}}"
