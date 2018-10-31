@@ -38,7 +38,7 @@
     dest: "{{autossh_keyfetch_destination}}"
     flat: yes
 
-- name: set .ssh/ owner recursinvely
+- name: set .ssh/ owner recursively
   become: true
   when: autossh_offline_conf == true
   file:
