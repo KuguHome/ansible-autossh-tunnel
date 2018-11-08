@@ -10,7 +10,7 @@ Group={{autossh_user}}
 
 # Shutdown delay in seconds, before process is tried to be killed with KILL (if configured)
 TimeoutStopSec=30
-Restart=on-failure
+Restart=always
 StandardOutput=syslog+console
 StandardError=syslog+console
 # -M 0 --> no monitoring

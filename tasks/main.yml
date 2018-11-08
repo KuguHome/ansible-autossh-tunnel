@@ -61,6 +61,7 @@
   package:
     name: autossh
 - name: deploy systemd unit for autossh tunnels
+  tags: systemd
   become: true
   template:
     src: "{{autossh_unit_template}}"
