@@ -69,6 +69,7 @@
   notify: restart autossh
 - name: deploy ssh config to autossh user
   become: true
+  tags: portforward
   when:
   - autossh_sshconfig_template_deploy == true
   - autossh_offline_conf == false
@@ -77,8 +78,9 @@
     dest: "{{autossh_path_prefix}}/home/{{autossh_user}}/.ssh/config"
     owner: "{{autossh_user}}"
   notify: restart autossh
-- name: deploy ssh config to autossh user
+- name: deploy ssh config to autossh user (offline conf)
   become: true
+  tags: portforward
   when:
   - autossh_sshconfig_template_deploy == true
   - autossh_offline_conf == true
