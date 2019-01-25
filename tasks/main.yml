@@ -1,4 +1,5 @@
 - name: create autossh user
+  tags: insituonly
   become: true
   when:
     - autossh_user_onlykey == false
@@ -13,6 +14,7 @@
     ssh_key_file: ".ssh/id_{{autossh_keyname}}"
     ssh_key_comment: "{{autossh_user}}@{{inventory_hostname}}"
 - name: generate autossh key
+  tags: insituonly
   become: true
   when:
     - autossh_user_onlykey == true
@@ -48,6 +50,7 @@
     path: "{{autossh_path_prefix}}/home/{{autossh_user}}/.ssh"
 
 - name: prepare .ssh directory
+  tags: insituonly
   when: autossh_offline_conf == false
   become: true
   file:
@@ -56,6 +59,7 @@
     mode: 0755
     owner: "{{autossh_user}}"
 - name: install autossh
+  tags: insituonly
   when: autossh_offline_conf == False
   become: true
   package:
@@ -69,7 +73,7 @@
   notify: restart autossh
 - name: deploy ssh config to autossh user
   become: true
-  tags: portforward
+  tags: portforward, insituonly
   when:
   - autossh_sshconfig_template_deploy == true
   - autossh_offline_conf == false
@@ -98,6 +102,7 @@
   notify: restart autossh
 
 - name: Enable and start autossh tunnels
+  tags: insituonly
   when: autossh_offline_conf == False
   become: true
   systemd:
