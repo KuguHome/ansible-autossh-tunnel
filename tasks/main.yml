@@ -2,65 +2,65 @@
   tags: insituonly
   become: true
   when:
-    - autossh_user_onlykey == false
-    - autossh_offline_conf == false
+    - not autossh_user_onlykey
+    - not autossh_offline_conf
   user:
-    name: "{{autossh_user}}"
+    name: "{{ autossh_user }}"
     system: yes
     append: yes
     shell: /bin/false
     generate_ssh_key: yes
     ssh_key_type: ED25519
-    ssh_key_file: ".ssh/id_{{autossh_keyname}}"
-    ssh_key_comment: "{{autossh_user}}@{{inventory_hostname}}"
+    ssh_key_file: ".ssh/id_{{ autossh_keyname }}"
+    ssh_key_comment: "{{ autossh_user }}@{{ inventory_hostname }}"
 - name: generate autossh key
   tags: insituonly
   become: true
   when:
-    - autossh_user_onlykey == true
-    - autossh_offline_conf == false
+    - autossh_user_onlykey
+    - not autossh_offline_conf
   user:
-    name: "{{autossh_user}}"
+    name: "{{ autossh_user }}"
     generate_ssh_key: yes
     ssh_key_type: ED25519
-    ssh_key_file: ".ssh/id_{{autossh_keyname}}"
-    ssh_key_comment: "{{autossh_user}}@{{inventory_hostname}}"
+    ssh_key_file: ".ssh/id_{{ autossh_keyname }}"
+    ssh_key_comment: "{{ autossh_user }}@{{ inventory_hostname }}"
 - name: generate autossh key offline
   become: true
-  when: autossh_offline_conf == true
+  when: autossh_offline_conf
   user:
-    name: "{{ansible_user_id}}"
+    name: "{{ ansible_user_id }}"
     generate_ssh_key: yes
     ssh_key_type: ED25519
-    ssh_key_file: "{{autossh_path_prefix}}/home/{{autossh_user}}/.ssh/id_{{autossh_keyname}}"
-    ssh_key_comment: "{{autossh_user}}@{{inventory_hostname}}"
+    ssh_key_file: "{{ autossh_path_prefix }}/home/{{ autossh_user }}/.ssh/id_{{ autossh_keyname }}"
+    ssh_key_comment: "{{ autossh_user }}@{{ inventory_hostname }}"
 - name: fetch public key
   fetch:
-    src: "{{autossh_path_prefix}}/home/{{autossh_user}}/.ssh/id_{{autossh_keyname}}.pub"
-    dest: "{{autossh_keyfetch_destination}}"
+    src: "{{ autossh_path_prefix }}/home/{{ autossh_user }}/.ssh/id_{{ autossh_keyname }}.pub"
+    dest: "{{ autossh_keyfetch_destination }}"
     flat: yes
 
 - name: set .ssh/ owner recursively
   become: true
-  when: autossh_offline_conf == true
+  when: autossh_offline_conf
   file:
     owner: 1000
     group: 1000
     recurse: yes
-    path: "{{autossh_path_prefix}}/home/{{autossh_user}}/.ssh"
+    path: "{{ autossh_path_prefix }}/home/{{ autossh_user }}/.ssh"
 
 - name: prepare .ssh directory
   tags: insituonly
-  when: autossh_offline_conf == false
+  when: not autossh_offline_conf
   become: true
   file:
-    path: "{{autossh_path_prefix}}/home/{{autossh_user}}/.ssh"
+    path: "{{ autossh_path_prefix }}/home/{{ autossh_user }}/.ssh"
     state: directory
     mode: 0755
-    owner: "{{autossh_user}}"
+    owner: "{{ autossh_user }}"
 - name: install autossh
   tags: insituonly
-  when: autossh_offline_conf == False
+  when: not autossh_offline_conf
   become: true
   package:
     name: autossh
@@ -68,44 +68,44 @@
   tags: systemd
   become: true
   template:
-    src: "{{autossh_unit_template}}"
-    dest: "{{autossh_path_prefix}}/etc/systemd/system/{{autossh_unit_name}}.service"
+    src: "{{ autossh_unit_template }}"
+    dest: "{{ autossh_path_prefix }}/etc/systemd/system/{{ autossh_unit_name }}.service"
   notify: restart autossh
 - name: deploy ssh config to autossh user
   become: true
   tags: portforward, insituonly
   when:
-  - autossh_sshconfig_template_deploy == true
-  - autossh_offline_conf == false
+  - autossh_sshconfig_template_deploy
+  - not autossh_offline_conf
   template:
-    src:  "{{autossh_sshconfig_template}}"
-    dest: "{{autossh_path_prefix}}/home/{{autossh_user}}/.ssh/config"
-    owner: "{{autossh_user}}"
+    src:  "{{ autossh_sshconfig_template }}"
+    dest: "{{ autossh_path_prefix }}/home/{{ autossh_user }}/.ssh/config"
+    owner: "{{ autossh_user }}"
   notify: restart autossh
 - name: deploy ssh config to autossh user (offline conf)
   become: true
   tags: portforward
   when:
-  - autossh_sshconfig_template_deploy == true
-  - autossh_offline_conf == true
+  - autossh_sshconfig_template_deploy
+  - autossh_offline_conf
   template:
-    src:  "{{autossh_sshconfig_template}}"
-    dest: "{{autossh_path_prefix}}/home/{{autossh_user}}/.ssh/config"
+    src:  "{{ autossh_sshconfig_template }}"
+    dest: "{{ autossh_path_prefix }}/home/{{ autossh_user }}/.ssh/config"
     owner: 1000
 
 - name: add known host
   known_hosts:
-    name: "{{autossh_login_host}}"
+    name: "{{ autossh_login_host }}"
     hash_host: yes
-    key: "{{autossh_login_hostkey}}"
-    path: "{{autossh_path_prefix}}/home/{{autossh_user}}/.ssh/known_hosts"
+    key: "{{ autossh_login_hostkey }}"
+    path: "{{ autossh_path_prefix }}/home/{{ autossh_user }}/.ssh/known_hosts"
   notify: restart autossh
 
 - name: Enable and start autossh tunnels
   tags: insituonly
-  when: autossh_offline_conf == False
+  when: not autossh_offline_conf
   become: true
   systemd:
-    name: "{{autossh_unit_name}}.service"
+    name: "{{ autossh_unit_name }}.service"
     enabled: true
     state: started
