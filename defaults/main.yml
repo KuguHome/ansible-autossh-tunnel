@@ -1,17 +1,19 @@
+autossh_onlineconf: true
+autossh_createuser: yes
+autossh_sshconfig_template_deploy: yes
 autossh_user: "autossh"
-autossh_user_onlykey: false
+autossh_owner: "{{ autossh_onlineconf | ternary(autossh_user,'1000') }}"
 autossh_unit_name: "autossh_tunnels"
 autossh_unit_template: "autossh_tunnels.service.j2"
 autossh_unit_decription: "AutoSSH tunnels"
 autossh_sshconfig_template: "sshconfig.j2"
-autossh_sshconfig_template_deploy: yes
 autossh_login_servername: ""
 autossh_login_host: ""
 autossh_login_hostkey: ""
 autossh_login_user: ""
+autossh_path_prefix: ""
+autossh_path: "{{ autossh_path_prefix }}/home/{{ autossh_user }}/.ssh"
 autossh_keyname: "{{inventory_hostname}}"
 autossh_keyfetch_destination: "keys/id_{{autossh_keyname}}.pub"
 autossh_localforwards: {}
 autossh_remoteforwards: {}
-autossh_path_prefix: ""
-autossh_offline_conf: false

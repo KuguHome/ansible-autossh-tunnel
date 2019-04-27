@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: autossh-tunnel
+  description: Sets up an automatic ssh connection to a remote server, possibly including port forwards
+  author: Hanno - Felix Wagner/friesenkiwi h.wagner@kugu-home.com
+  company: KUGU Home GmbH
+  license: BSD
+  galaxy_tags:
+  - ssh
+  - autossh
+  platforms:
+  - name: Raspbian
+    versions:
+    - all
+  min_ansible_version: 1.2
