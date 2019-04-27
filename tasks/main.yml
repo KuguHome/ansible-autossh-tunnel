@@ -1,5 +1,4 @@
 - name: create autossh user
-  tags: insituonly
   when:
   - autossh_onlineconf
   - autossh_createuser
@@ -10,7 +9,6 @@
     append: yes
     shell: /bin/false
 - name: generate autossh key
-  tags: insituonly
   become: true
   user:
     name: "{{ autossh_onlineconf | ternary(autossh_user,ansible_user_id) }}"
@@ -35,7 +33,6 @@
     recurse: yes
 
 - name: install autossh
-  tags: insituonly
   when: autossh_onlineconf
   become: true
   package:
@@ -50,7 +47,6 @@
 - name: deploy ssh config to autossh user
   tags: portforward
   when:
-  - autossh_onlineconf
   - autossh_sshconfig_template_deploy
   become: true
   template:
@@ -67,7 +63,6 @@
   notify: restart autossh
 
 - name: Enable and start autossh tunnels
-  tags: insituonly
   when: autossh_onlineconf
   become: true
   systemd:
