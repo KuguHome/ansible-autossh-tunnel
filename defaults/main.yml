@@ -1,6 +1,7 @@
 autossh_onlineconf: true
-autossh_createuser: yes
-autossh_sshconfig_template_deploy: yes
+autossh_createuser: true
+autossh_sshconfig_template_deploy: true
+autossh_inthenameof: true
 autossh_user: "autossh"
 autossh_owner: "{{ autossh_onlineconf | ternary(autossh_user,'1000') }}"
 autossh_unit_name: "autossh_tunnels"

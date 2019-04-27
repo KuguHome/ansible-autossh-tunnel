@@ -5,14 +5,14 @@
   become: true
   user:
     name: "{{ autossh_user }}"
-    system: yes
-    append: yes
+    system: true
+    append: true
     shell: /bin/false
 - name: generate autossh key
-  become: true
+  become: "{{ autossh_inthenameof }}"
   user:
     name: "{{ autossh_onlineconf | ternary(autossh_user,ansible_user_id) }}"
-    generate_ssh_key: yes
+    generate_ssh_key: true
     ssh_key_type: ED25519
     ssh_key_file: "{{ autossh_path }}/id_{{ autossh_keyname }}"
     ssh_key_comment: "{{ autossh_user }}@{{ inventory_hostname }}"
@@ -20,17 +20,17 @@
   fetch:
     src: "{{ autossh_path }}/id_{{ autossh_keyname }}.pub"
     dest: "{{ autossh_keyfetch_destination }}"
-    flat: yes
+    flat: true
 
 - name: set .ssh/ directory recursively
-  become: true
+  become: "{{ autossh_inthenameof }}"
   file:
     path: "{{ autossh_path }}"
     owner: "{{ autossh_owner }}"
     group: "{{ autossh_owner }}"
     mode: 0755
     state: directory
-    recurse: yes
+    recurse: true
 
 - name: install autossh
   when: autossh_onlineconf
@@ -48,7 +48,7 @@
   tags: portforward
   when:
   - autossh_sshconfig_template_deploy
-  become: true
+  become: "{{ autossh_inthenameof }}"
   template:
     src:  "{{ autossh_sshconfig_template }}"
     dest: "{{ autossh_path }}/config"
@@ -57,7 +57,7 @@
 - name: add known host
   known_hosts:
     name: "{{ autossh_login_host }}"
-    hash_host: yes
+    hash_host: true
     key: "{{ autossh_login_hostkey }}"
     path: "{{ autossh_path }}/known_hosts"
   notify: restart autossh

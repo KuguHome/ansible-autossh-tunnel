@@ -3,7 +3,7 @@
   become: true
   systemd:
     name: "{{ autossh_unit_name }}.service"
-    daemon_reload: yes
+    daemon_reload: true
     state: restarted
   async: 10
   poll: 0
