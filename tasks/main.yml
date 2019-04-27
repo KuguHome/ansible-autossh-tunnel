@@ -17,6 +17,7 @@
     ssh_key_file: "{{ autossh_path }}/id_{{ autossh_keyname }}"
     ssh_key_comment: "{{ autossh_user }}@{{ inventory_hostname }}"
 - name: fetch public key
+  become: "{{ autossh_inthenameof }}"
   fetch:
     src: "{{ autossh_path }}/id_{{ autossh_keyname }}.pub"
     dest: "{{ autossh_keyfetch_destination }}"
@@ -28,7 +29,7 @@
     path: "{{ autossh_path }}"
     owner: "{{ autossh_owner }}"
     group: "{{ autossh_owner }}"
-    mode: 0755
+    mode: "u+rw,g=,o="
     state: directory
     recurse: true
 
@@ -55,6 +56,7 @@
     owner: "{{ autossh_user }}"
 
 - name: add known host
+  become: "{{ autossh_inthenameof }}"
   known_hosts:
     name: "{{ autossh_login_host }}"
     hash_host: true
