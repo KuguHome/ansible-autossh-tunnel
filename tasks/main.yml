@@ -54,6 +54,7 @@
     src:  "{{ autossh_sshconfig_template }}"
     dest: "{{ autossh_path }}/config"
     owner: "{{ autossh_user }}"
+#    owner: "1000"
 
 - name: add known host
   become: "{{ autossh_inthenameof }}"
