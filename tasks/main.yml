@@ -8,6 +8,11 @@
     system: true
     append: true
     shell: /bin/false
+- name: check for an exisiting key file
+  become: true
+  stat:
+    path: "{{ autossh_path }}/id_{{ autossh_keyname }}"
+  register: key_file
 - name: generate autossh key
   become: "{{ autossh_inthenameof }}"
   user:
@@ -16,13 +21,14 @@
     ssh_key_type: ED25519
     ssh_key_file: "{{ autossh_path }}/id_{{ autossh_keyname }}"
     ssh_key_comment: "{{ autossh_user }}@{{ inventory_hostname }}"
+  when: not key_file.stat.exists
 - name: fetch public key
   become: "{{ autossh_inthenameof }}"
   fetch:
     src: "{{ autossh_path }}/id_{{ autossh_keyname }}.pub"
     dest: "{{ autossh_keyfetch_destination }}"
     flat: true
-
+  when: not key_file.stat.exists
 - name: set .ssh/ directory recursively
   become: "{{ autossh_inthenameof }}"
   file:
