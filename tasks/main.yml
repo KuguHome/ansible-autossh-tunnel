@@ -61,6 +61,7 @@
     dest: "{{ autossh_path }}/config"
     owner: "{{ autossh_user }}"
 #    owner: "1000"
+  notify: restart autossh
 
 - name: add known host
   become: "{{ autossh_inthenameof }}"
