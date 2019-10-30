@@ -4,18 +4,18 @@
   - autossh_createuser
   become: true
   user:
-    name: "{{ autossh_user }}"
+    name: "{{ autossh_username }}"
     system: true
     append: true
     shell: /bin/false
 - name: generate autossh key
   become: "{{ autossh_inthenameof }}"
   user:
-    name: "{{ autossh_onlineconf | ternary(autossh_user,ansible_user_id) }}"
+    name: "{{ autossh_onlineconf | ternary(autossh_username,ansible_user_id) }}"
     generate_ssh_key: true
     ssh_key_type: ED25519
     ssh_key_file: "{{ autossh_path }}/id_{{ autossh_keyname }}"
-    ssh_key_comment: "{{ autossh_user }}@{{ inventory_hostname }}"
+    ssh_key_comment: "{{ autossh_username }}@{{ inventory_hostname }}"
 - name: fetch public key
   become: "{{ autossh_inthenameof }}"
   fetch:
@@ -53,8 +53,7 @@
   template:
     src:  "{{ autossh_sshconfig_template }}"
     dest: "{{ autossh_path }}/config"
-    owner: "{{ autossh_user }}"
-#    owner: "1000"
+    owner: "{{ autossh_owner }}"
   notify: restart autossh
 
 - name: add known host

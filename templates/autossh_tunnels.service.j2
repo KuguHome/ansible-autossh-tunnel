@@ -5,8 +5,8 @@ Wants=network-online.target
 After=network-online.target ssh.service
 
 [Service]
-User={{ autossh_user }}
-Group={{ autossh_user }}
+User={{ autossh_username }}
+Group={{ autossh_username }}
 
 # Shutdown delay in seconds, before process is tried to be killed with KILL (if configured)
 TimeoutStopSec=30
