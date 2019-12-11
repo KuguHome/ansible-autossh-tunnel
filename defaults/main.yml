@@ -19,3 +19,5 @@ autossh_keyname: "{{inventory_hostname}}"
 autossh_keyfetch_destination: "keys/id_{{autossh_keyname}}.pub"
 autossh_localforwards: {}
 autossh_remoteforwards: {}
+autossh_command: /usr/bin/autossh -M 0 -N {{ autossh_login_servername }}
+autossh_command_dirty: /usr/bin/ssh -N {{ autossh_login_servername }}
