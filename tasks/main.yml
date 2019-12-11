@@ -65,7 +65,15 @@
     path: "{{ autossh_path }}/known_hosts"
   notify: restart autossh
 
-- name: Enable and start autossh tunnels
+- name: Enable autossh tunnels systemd unit
+  when: not autossh_onlineconf
+  become: true
+  file:
+    path: "{{ autossh_path_prefix }}/etc/systemd/system/multi-user.target.wants/{{ autossh_unit_name }}.service"
+    src: "{{ autossh_path_prefix }}/etc/systemd/system/{{ autossh_unit_name }}.service"
+    state: link
+
+- name: Enable and start autossh tunnels systemd unit
   when: autossh_onlineconf
   become: true
   systemd:
