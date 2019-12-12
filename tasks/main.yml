@@ -23,16 +23,6 @@
     dest: "{{ autossh_keyfetch_destination }}"
     flat: true
 
-- name: set .ssh/ directory recursively
-  become: "{{ autossh_inthenameof }}"
-  file:
-    path: "{{ autossh_path }}"
-    owner: "{{ autossh_owner }}"
-    group: "{{ autossh_owner }}"
-    mode: "u+rw,g=,o="
-    state: directory
-    recurse: true
-
 - name: install autossh
   when: autossh_onlineconf
   become: true
@@ -64,6 +54,16 @@
     key: "{{ autossh_login_hostkey }}"
     path: "{{ autossh_path }}/known_hosts"
   notify: restart autossh
+
+- name: set .ssh/ directory recursively
+  become: "{{ autossh_inthenameof }}"
+  file:
+    path: "{{ autossh_path }}"
+    owner: "{{ autossh_owner }}"
+    group: "{{ autossh_owner }}"
+    mode: "u+rw,g=,o="
+    state: directory
+    recurse: true
 
 - name: Enable autossh tunnels systemd unit
   when: not autossh_onlineconf
