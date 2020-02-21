@@ -1,22 +1,25 @@
 [Unit]
 Description={{ autossh_unit_decription }}
 Documentation=https://www.everythingcli.org/ssh-tunnelling-for-fun-and-profit-autossh/
-Wants=network-online.target
+Requires=network-online.target
 After=network-online.target ssh.service
+Type=idle
 
 [Service]
-User={{ autossh_user }}
-Group={{ autossh_user }}
+User={{ autossh_username }}
+Group={{ autossh_username }}
 
 # Shutdown delay in seconds, before process is tried to be killed with KILL (if configured)
 TimeoutStopSec=30
 Restart=always
+RestartSec=1s
+StartLimitBurst=10
 StandardOutput=syslog+console
 StandardError=syslog+console
 # -M 0 --> no monitoring
 # -N Just open the connection and do nothing (not interactive)
 Environment="AUTOSSH_GATETIME=0"
-ExecStart=/usr/bin/autossh -M 0 -N {{ autossh_login_servername }}
+ExecStart={{ autossh_command }}
 
 [Install]
 WantedBy=multi-user.target

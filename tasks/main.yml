@@ -4,7 +4,7 @@
   - autossh_createuser
   become: true
   user:
-    name: "{{ autossh_user }}"
+    name: "{{ autossh_username }}"
     system: true
     append: true
     shell: /bin/false
@@ -17,7 +17,7 @@
 - name: generate autossh key
   become: "{{ autossh_inthenameof }}"
   user:
-    name: "{{ autossh_onlineconf | ternary(autossh_user,ansible_user_id) }}"
+    name: "{{ autossh_onlineconf | ternary(autossh_username,ansible_user_id) }}"
     generate_ssh_key: true
     ssh_key_type: ED25519
     ssh_key_file: "{{ autossh_path }}/id_{{ autossh_keyname }}"
@@ -66,8 +66,7 @@
   template:
     src:  "{{ autossh_sshconfig_template }}"
     dest: "{{ autossh_path }}/config"
-    owner: "{{ autossh_user }}"
-#    owner: "1000"
+    owner: "{{ autossh_owner }}"
   notify: restart autossh
 
 - name: add known host
@@ -79,7 +78,25 @@
     path: "{{ autossh_path }}/known_hosts"
   notify: restart autossh
 
-- name: Enable and start autossh tunnels
+- name: set .ssh/ directory recursively
+  become: "{{ autossh_inthenameof }}"
+  file:
+    path: "{{ autossh_path }}"
+    owner: "{{ autossh_owner }}"
+    group: "{{ autossh_owner }}"
+    mode: "u+rw,g=,o="
+    state: directory
+    recurse: true
+
+- name: Enable autossh tunnels systemd unit
+  when: not autossh_onlineconf
+  become: true
+  file:
+    path: "{{ autossh_path_prefix }}/etc/systemd/system/multi-user.target.wants/{{ autossh_unit_name }}.service"
+    src: "{{ autossh_path_prefix }}/etc/systemd/system/{{ autossh_unit_name }}.service"
+    state: link
+
+- name: Enable and start autossh tunnels systemd unit
   when: autossh_onlineconf
   become: true
   systemd:
