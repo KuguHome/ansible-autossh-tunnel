@@ -8,12 +8,11 @@
     system: true
     append: true
     shell: /bin/false
-- name: check for an exisiting key file
-  become: true
-  stat:
-    path: "{{ autossh_keyfetch_destination }}/id_{{ autossh_keyname }}.pub"
-  register: key_file
-  delegate: localhost
+#- name: check for an exisiting key file
+#  stat:
+#    path: "{{ autossh_keyfetch_destination }}/id_{{ autossh_keyname }}.pub"
+#  register: key_file
+#  delegate_to: localhost
 - name: generate autossh key
   become: "{{ autossh_inthenameof }}"
   user:
@@ -22,14 +21,14 @@
     ssh_key_type: ED25519
     ssh_key_file: "{{ autossh_path }}/id_{{ autossh_keyname }}"
     ssh_key_comment: "{{ autossh_user }}@{{ inventory_hostname }}"
-- name: copy an existing public key to .old
-  become: true
-  file:
-    copy:
-      src: "{{ autossh_keyfetch_destination }}/id_{{ autossh_keyname }}.pub"
-      dest: "{{ autossh_keyfetch_destination }}/id_{{ autossh_keyname }}.pub.old"
-  delegate_to: localhost
-  when: key_file.stat.exists
+#- name: copy an existing public key to .old
+#  become: true
+#  file:
+#    copy:
+#      src: "{{ autossh_keyfetch_destination }}/id_{{ autossh_keyname }}.pub"
+#      dest: "{{ autossh_keyfetch_destination }}/id_{{ autossh_keyname }}.pub.old"
+#  delegate_to: localhost
+#  when: key_file.stat.exists
 - name: fetch public key
   become: "{{ autossh_inthenameof }}"
   fetch:
