@@ -28,6 +28,10 @@
   become: true
   package:
     name: autossh
+- name: Show which ports to forward
+  tags: portforward
+  debug:
+      msg: "{{ autossh_remoteforwards }}"
 - name: deploy systemd unit for autossh tunnels
   tags: systemd
   become: true
