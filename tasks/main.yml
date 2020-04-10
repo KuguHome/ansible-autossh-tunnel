@@ -14,6 +14,15 @@
     path: "{{ autossh_keyfetch_destination }}/id_{{ autossh_keyname }}.pub"
   register: key_file
   delegate: localhost
+- name: remove old keyfiles (will get regenerated below)
+  become: "{{ autossh_inthenameof }}"
+  when: autossh_refresh_key | bool
+  with_items:
+  - "{{ autossh_path }}/id_ed25519"
+  - "{{ autossh_path }}/.ssh/id_ed25519.pub"
+  file:
+    path: "{{ item }}"
+    state: absent
 - name: generate autossh key
   become: "{{ autossh_inthenameof }}"
   user:
