@@ -2,6 +2,7 @@ autossh_onlineconf: true
 autossh_createuser: true
 autossh_sshconfig_template_deploy: true
 autossh_inthenameof: true
+autossh_refresh_key: no
 autossh_username: "autossh"
 autossh_user: "{{ autossh_username }}"
 autossh_owner: "{{ autossh_onlineconf | ternary(autossh_username,'1000') }}"
