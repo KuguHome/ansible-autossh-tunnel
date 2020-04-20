@@ -6,6 +6,7 @@ autossh_refresh_key: no
 autossh_username: "autossh"
 autossh_user: "{{ autossh_username }}"
 autossh_owner: "{{ autossh_onlineconf | ternary(autossh_username,'1000') }}"
+autossh_sshdir_modestring: u=rwX,o-wx
 autossh_unit_name: "autossh_tunnels"
 autossh_unit_template: "autossh_tunnels.service.j2"
 autossh_unit_decription: "AutoSSH tunnels"
@@ -13,6 +14,10 @@ autossh_sshconfig_template: "sshconfig.j2"
 autossh_login_servername: ""
 autossh_login_host: ""
 autossh_login_hostkey: ""
+autossh_login_hostkeys:
+- "{{ autossh_login_hostkey }}"
+autossh_login_hostkey_host: "{{ (item.startswith('|')) | ternary (autossh_login_host, item.split(' ')[0].split(',')[0]) }}"
+autossh_login_hostkey_hash: false
 autossh_login_user: ""
 autossh_path_prefix: ""
 autossh_path: "{{ autossh_path_prefix }}/home/{{ autossh_username }}/.ssh"

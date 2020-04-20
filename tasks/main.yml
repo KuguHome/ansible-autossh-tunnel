@@ -8,18 +8,12 @@
     system: true
     append: true
     shell: /bin/false
-- name: check for an exisiting key file
-  become: true
-  stat:
-    path: "{{ autossh_keyfetch_destination }}/id_{{ autossh_keyname }}.pub"
-  register: key_file
-  delegate: localhost
 - name: remove old keyfiles (will get regenerated below)
   become: "{{ autossh_inthenameof }}"
   when: autossh_refresh_key | bool
   with_items:
   - "{{ autossh_path }}/id_ed25519"
-  - "{{ autossh_path }}/.ssh/id_ed25519.pub"
+  - "{{ autossh_path }}/id_ed25519.pub"
   file:
     path: "{{ item }}"
     state: absent
@@ -31,27 +25,27 @@
     ssh_key_type: ED25519
     ssh_key_file: "{{ autossh_path }}/id_{{ autossh_keyname }}"
     ssh_key_comment: "{{ autossh_user }}@{{ inventory_hostname }}"
-- name: copy an existing public key to .old
-  become: true
-  file:
-    copy:
-      src: "{{ autossh_keyfetch_destination }}/id_{{ autossh_keyname }}.pub"
-      dest: "{{ autossh_keyfetch_destination }}/id_{{ autossh_keyname }}.pub.old"
+  register: userresults
+- name: copy locally existing public key to .old
+  vars:
+    oldkey: "{{ lookup('file', autossh_keyfetch_destination, errors='ignore') | default('') }}"
+  when: (oldkey | default('', true) | trim != '') and userresults.ssh_public_key != oldkey
   delegate_to: localhost
-  when: key_file.stat.exists
-- name: fetch public key
-  become: "{{ autossh_inthenameof }}"
-  fetch:
-    src: "{{ autossh_path }}/id_{{ autossh_keyname }}.pub"
+  copy:
+    content: "{{ oldkey }}"
+    dest: "{{ autossh_keyfetch_destination }}.old"
+- name: store public key locally
+  delegate_to: localhost
+  copy:
+    content: "{{ userresults.ssh_public_key }}\n"
     dest: "{{ autossh_keyfetch_destination }}"
-    flat: true
 - name: set .ssh/ directory recursively
   become: "{{ autossh_inthenameof }}"
   file:
     path: "{{ autossh_path }}"
     owner: "{{ autossh_owner }}"
     group: "{{ autossh_owner }}"
-    mode: "u+rw,g=,o="
+    mode: "{{ autossh_sshdir_modestring }}"
     state: directory
     recurse: true
 
@@ -64,6 +58,11 @@
   tags: portforward
   debug:
       msg: "{{ autossh_remoteforwards }}"
+- name: Record remoteforwards as custom stat (set show_custom_stats in ansible.cfg or ANSIBLE_SHOW_CUSTOM_STATS=yes in env)
+  set_stats:
+    per_host: yes
+    data:
+      remoteforwards: "{{ autossh_remoteforwards }}"
 - name: deploy systemd unit for autossh tunnels
   tags: systemd
   become: true
@@ -84,10 +83,11 @@
 
 - name: add known host
   become: "{{ autossh_inthenameof }}"
+  loop: "{{ autossh_login_hostkeys }}"
   known_hosts:
-    name: "{{ autossh_login_host }}"
-    hash_host: true
-    key: "{{ autossh_login_hostkey }}"
+    name: "{{ autossh_login_hostkey_host }}"
+    hash_host: "{{ autossh_login_hostkey_hash }}"
+    key: "{{ item }}"
     path: "{{ autossh_path }}/known_hosts"
   notify: restart autossh
 
@@ -97,7 +97,7 @@
     path: "{{ autossh_path }}"
     owner: "{{ autossh_owner }}"
     group: "{{ autossh_owner }}"
-    mode: "u+rw,g=,o="
+    mode: "{{ autossh_sshdir_modestring }}"
     state: directory
     recurse: true
 
