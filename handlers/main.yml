@@ -7,3 +7,4 @@
     state: restarted
   async: 10
   poll: 0
+  check_mode: no

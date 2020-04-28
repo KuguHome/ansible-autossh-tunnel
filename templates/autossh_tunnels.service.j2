@@ -3,11 +3,11 @@ Description={{ autossh_unit_decription }}
 Documentation=https://www.everythingcli.org/ssh-tunnelling-for-fun-and-profit-autossh/
 Requires=network-online.target
 After=network-online.target ssh.service
-Type=idle
 
 [Service]
 User={{ autossh_username }}
 Group={{ autossh_username }}
+Type=idle
 
 # Shutdown delay in seconds, before process is tried to be killed with KILL (if configured)
 TimeoutStopSec=30

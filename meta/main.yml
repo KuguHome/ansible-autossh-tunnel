@@ -12,4 +12,4 @@ galaxy_info:
   - name: Raspbian
     versions:
     - all
-  min_ansible_version: 1.2
+  min_ansible_version: 2.9

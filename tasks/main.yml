@@ -18,15 +18,17 @@
     path: "{{ item }}"
     state: absent
 - name: generate autossh key
+  tags: getkey
   become: "{{ autossh_inthenameof }}"
   user:
     name: "{{ autossh_onlineconf | ternary(autossh_username,ansible_user_id) }}"
     generate_ssh_key: true
     ssh_key_type: ED25519
     ssh_key_file: "{{ autossh_path }}/id_{{ autossh_keyname }}"
-    ssh_key_comment: "{{ autossh_user }}@{{ inventory_hostname }}"
+    ssh_key_comment: "{{ autossh_keycomment }}"
   register: userresults
 - name: copy locally existing public key to .old
+  tags: getkey
   vars:
     oldkey: "{{ lookup('file', autossh_keyfetch_destination, errors='ignore') | default('') }}"
   when: (oldkey | default('', true) | trim != '') and userresults.ssh_public_key != oldkey
@@ -35,6 +37,7 @@
     content: "{{ oldkey }}"
     dest: "{{ autossh_keyfetch_destination }}.old"
 - name: store public key locally
+  tags: getkey
   delegate_to: localhost
   copy:
     content: "{{ userresults.ssh_public_key }}\n"

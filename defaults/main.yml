@@ -4,7 +4,7 @@ autossh_sshconfig_template_deploy: true
 autossh_inthenameof: true
 autossh_refresh_key: no
 autossh_username: "autossh"
-autossh_user: "{{ autossh_username }}"
+autossh_keycomment: "{{ autossh_username | default(inventory_hostname) }}@{{ ansible_hostname }}"
 autossh_owner: "{{ autossh_onlineconf | ternary(autossh_username,'1000') }}"
 autossh_sshdir_modestring: u=rwX,o-wx
 autossh_unit_name: "autossh_tunnels"
